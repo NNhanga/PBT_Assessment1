@@ -1,4 +1,4 @@
-# PBT_Assessment1
+# PBT205 Assessment 1 - Prototype Development
 PBT205 group project with Nenci, David and Taygan
 # Chatting Application
 ## Prerequisites  
