@@ -1,55 +1,51 @@
-import time, socket, sys, os
+import socket, sys, random
+from datetime import datetime
+from colorama import Fore, init, Back
 
-""" def main():
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
-    channel = connection.channel()
+# This intialises Colorama
+init()
 
-    channel.queue_declare(queue='queue1')
+#List of colours, code obtained from Rockikz (https://www.thepythoncode.com/article/make-a-chat-room-application-in-python#:~:text=A%20chat%20room%20is%20an,it%20using%20sockets%20in%20Python.)
+colours = [Fore.BLUE, Fore.CYAN, Fore.GREEN, Fore.LIGHTBLACK_EX, 
+    Fore.LIGHTBLUE_EX, Fore.LIGHTCYAN_EX, Fore.LIGHTGREEN_EX, 
+    Fore.LIGHTMAGENTA_EX, Fore.LIGHTRED_EX, Fore.LIGHTWHITE_EX, 
+    Fore.LIGHTYELLOW_EX, Fore.MAGENTA, Fore.RED, Fore.WHITE, Fore.YELLOW
+]
 
-    def callback(ch, method, properties, body):
-        print(" [x] Received %r" % body)
+# choose a random color for the client
+user_colour = random.choice(colours)
+#obatined code stops here 
 
-    channel.basic_consume(queue='queue1', on_message_callback=callback, auto_ack=True)
+#TCP socket
+user_socket = socket.socket()
+#Retreives IP address
+user_server = socket.gethostname()
+user_ip = socket.gethostbyname(user_server )
+port = 5000
 
-    print(' [*] Waiting for messages. To exit press CTRL+C')
-    channel.start_consuming()
-
-if __name__ == '__main__':
-    try:
-        main()
-    except KeyboardInterrupt:
-        print('Interrupted')
-        try:
-            sys.exit(0)
-        except SystemExit:
-            os._exit(0)
-
-  """
-
-#the ip address is retrived by ip_user, ipu_store stores the ip address and port_store stroes the port
-user_server = socket.socket()
-ip_user = socket.gethostname()
-ipu_store = socket.gethostbyname(ip_user)
-port_store = 5555
-#User is asked to input ther IP Address and name 
-ip_user = input('Enter IP address:')
+# This connects user to the server, infroms them of their IP address and asks for name 
+user_socket.connect((user_server, port))
+print('This is your IP address: ', user_ip)
+user_server = input('Enter IP address:')
 name = input('Enter name: ')
 
-#The server and port are connected to the socket 
-user_server.connect((ip_user, port_store))
 
-#Receiving messages from the server 
-user_server.send(name.encode())
-user_name = user_server.recv(1024)
-user_name = user_name.decode()
-
-print(user_name,' joined!...')
+#Recieves messages from the server 
+user_socket.send(name.encode())
+username= user_socket.recv(1024)
+username= username.decode()
+ 
+print(username,' has joined...')
 while True:
-    message = (user_server .recv(1024)).decode()
-    print(user_name, ":", message)
+    message = (user_socket.recv(1024)).decode()
+    print(username, ":", message)
     message = input("Me : ")
-    user_server .send(message.encode())
+    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S') 
+    message = f"{user_colour}[{date}] {name}{message}{Fore.RESET}"
+    user_socket.send(message.encode())  
 
-user_server.close()
+user_socket.close()
 
-#Reference: https://www.askpython.com/python/examples/create-chatroom-in-python
+#References 
+#Anu(https://www.askpython.com/python/examples/create-chatroom-in-python)
+#Rockikz (https://www.thepythoncode.com/article/make-a-chat-room-application-in-python#:~:text=A%20chat%20room%20is%20an,it%20using%20sockets%20in%20Python.)

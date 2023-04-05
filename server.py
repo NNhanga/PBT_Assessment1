@@ -1,49 +1,44 @@
-import socket, pika,  time, sys
-
-# connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
-# channel = connection.channel()
-# channel.exchange_declare('test', durable=True, exchange_type='topic')
-# channel.queue_declare(queue='chat')
-# channel.queue_bind(exchange='test', queue='chat', routing_key='chat')
-# channel.basic_publish(exchange='test', routing_key='chat', body= '')
-# channel.close()
+import socket, sys
 
 
-#Finds the IP Address and stores it
+#TCP socket
 server = socket.socket()
+#Retreives IP address
 ip = socket.gethostname()
-ip_store = socket.gethostbyname(ip)
- 
-port = 37775
+server_ip = socket.gethostbyname(ip)
+port = 5000
 
-#Binds the IP address and port 
+# bind the socket to the IP and port we specified
 server.bind((ip, port))
+print("This is your IP: ", server_ip)
+name = input('Enter name:')
 
-#When connected user will be welcomed and promted to enter name
-print ("WELCOME!")
-name = input('Enter name: ')
+# listens for connections, currently can hold 10 connections
+server.listen(10)
 
-#Listens for connections for up to 100
-server.listen(100) 
+#Accepts incoming connections
+socket_s, user_ip = server.accept()
 
-#Accepts new connections
-connection = server.accept()
+#Stores all the availabe users
+user_sockets = set()
 
-#Stores incoming connections and prints the name of who has connected
-user = (connection.recv(1024)).decode()
+#stores the connection data sends the messages
+user = (socket_s.recv(1024)).decode()
 print(user + ' has connected.')
-connection.send(name.encode())
+socket_s.send(name.encode())
 
-# This delivers messages to users.
+
 while True:
     message = input('Me : ')
-    connection.send(message.encode())
-    message = connection.recv(1024)
+    socket_s.send(message.encode())
+    message = socket_s.recv(1024)
     message = message.decode()
     print(user, ':', message)
 
-    server.close
+
+# close server socket
+server.close()
 
 
-   
-#Reference: https://www.askpython.com/python/examples/create-chatroom-in-python
+#References
+#Anu(https://www.askpython.com/python/examples/create-chatroom-in-python)
